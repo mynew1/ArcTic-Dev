@@ -1845,46 +1845,23 @@ Vehicle* MapMgr::CreateVehicle(uint32 entry)
 
 uint64 MapMgr::GenerateCreatureGUID(uint32 entry)
 {
-	uint64 newguid = 0;
-
-	CreatureProto *proto = CreatureProtoStorage.LookupEntry( entry );
-	if( ( proto == NULL ) || ( proto->vehicle_entry == 0 ) )
-		newguid = static_cast< uint64 >( HIGHGUID_TYPE_UNIT ) << 32;
-	else
-		newguid = static_cast< uint64 >( HIGHGUID_TYPE_VEHICLE ) << 32;
-
-	char* pHighGuid = reinterpret_cast< char* >(&newguid);
-	char* pEntry = reinterpret_cast< char* >(&entry);
-
-	pHighGuid[ 3 ] |= pEntry[ 0 ];
-	pHighGuid[ 4 ] |= pEntry[ 1 ];
-	pHighGuid[ 5 ] |= pEntry[ 2 ];
-	pHighGuid[ 6 ] |= pEntry[ 3 ];
-
-	uint32 guid = 0;
-
-	if(_reusable_guids_creature.size() > 0)
+	uint64 newguid = ( (uint64)HIGHGUID_TYPE_UNIT << 32 ) | ( (uint64)entry << 24 );
+	Creature* cr = NULL;
+	if(_reusable_guids_creature.size())
 	{
-		guid = _reusable_guids_creature.front();
+		uint32 guid = _reusable_guids_creature.front();
 		_reusable_guids_creature.pop_front();
 
+		newguid |= guid;
 	}
+
 	else
-	{
-		m_CreatureHighGuid++;
+		newguid |= ++m_CreatureHighGuid;
 
-		if(m_CreatureHighGuid >= m_CreatureStorage.size())
-		{
-			// Reallocate array with larger size.
-			size_t newsize = m_CreatureStorage.size() + RESERVE_EXPAND_SIZE;
-			m_CreatureArraySize = newsize;
-		}
-		guid = m_CreatureHighGuid;
-	}
-
-	newguid |= guid;
-
-	return newguid;
+	cr = new Creature(newguid);
+	cr->Init();
+	ASSERT( cr->GetTypeFromGUID() == HIGHGUID_TYPE_UNIT );
+	return cr->GetGUID();
 }
 
 GameObject* MapMgr::CreateGameObject(uint32 entry)
