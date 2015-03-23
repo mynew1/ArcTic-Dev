@@ -1843,7 +1843,7 @@ Vehicle* MapMgr::CreateVehicle(uint32 entry)
 	return v;
 }
 
-uint64 MapMgr::GenerateCreatureGUID(uint32 entry)
+Creature* MapMgr::CreateCreature(uint32 entry)
 {
 	uint64 newguid = ( (uint64)HIGHGUID_TYPE_UNIT << 32 ) | ( (uint64)entry << 24 );
 	Creature* cr = NULL;
@@ -1861,7 +1861,7 @@ uint64 MapMgr::GenerateCreatureGUID(uint32 entry)
 	cr = new Creature(newguid);
 	cr->Init();
 	ASSERT( cr->GetTypeFromGUID() == HIGHGUID_TYPE_UNIT );
-	return cr->GetGUID();
+	return cr;
 }
 
 GameObject* MapMgr::CreateGameObject(uint32 entry)
@@ -2039,16 +2039,9 @@ void MapMgr::SendPvPCaptureMessage(int32 iZoneMask, uint32 ZoneId, const char * 
 	}
 }
 
-Creature* MapMgr::CreateCreature(uint32 entry)
-{
-	uint64 guid = GenerateCreatureGUID(entry);
-
-	return new Creature(guid);
-}
-
 Summon* MapMgr::CreateSummon(uint32 entry, SummonType type)
 {
-	uint64 guid = GenerateCreatureGUID(entry);
+	uint64 guid = CreateCreature(entry);
 
 	switch(type)
 	{
