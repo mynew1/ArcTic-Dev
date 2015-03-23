@@ -2041,7 +2041,7 @@ void MapMgr::SendPvPCaptureMessage(int32 iZoneMask, uint32 ZoneId, const char * 
 
 Summon* MapMgr::CreateSummon(uint32 entry, SummonType type)
 {
-	uint64 guid = CreateCreature(entry);
+	uint64 guid = CreateCreature(entry)->GetGUID();
 
 	switch(type)
 	{
